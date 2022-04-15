@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,9 +18,8 @@ func main() {
 
 	siteStats = SiteStatistics{Visits: 20}
 
-	http.HandleFunc("/", handler)
 	http.HandleFunc("/stats", statsHandler)
-	http.HandleFunc("/sitevisited", visitHandler)
+	http.HandleFunc("/addvisit", addVisitHandler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -37,16 +35,12 @@ func main() {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "nothing works :(\n")
-}
-
 func statsHandler(w http.ResponseWriter, r *http.Request) {
 	// add code to read from a database here
 	json.NewEncoder(w).Encode(siteStats)
 }
 
-func visitHandler(w http.ResponseWriter, r *http.Request) {
+func addVisitHandler(w http.ResponseWriter, r *http.Request) {
 	// add to the visit count
 	siteStats.Visits++
 
