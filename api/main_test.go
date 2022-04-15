@@ -2,53 +2,60 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
-type StatsResponse struct {
-	Visits int `json:"Visits"`
+var app App
+
+func TestMain(m *testing.M) {
+	app.Initialize()
+	result := m.Run()
+
+	os.Exit(result)
 }
 
-func TestStatsHandler(t *testing.T) {
-	request := httptest.NewRequest("GET", "/stats", nil)
-	responseRecorder := httptest.NewRecorder()
-	statsHandler(responseRecorder, request)
+func executeRequest(req *http.Request) *httptest.ResponseRecorder {
+	rr := httptest.NewRecorder()
+	app.Router.ServeHTTP(rr, req)
 
-	response := responseRecorder.Result()
-	defer response.Body.Close()
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		t.Error(err)
-	}
+	return rr
+}
 
-	var statsResponse StatsResponse
-	json.Unmarshal(data, &statsResponse) // how do we check for errors here?
-
-	if statsResponse.Visits < 0 {
-		t.Errorf("Expect the visits to be a number greater than zero, instead got %v", statsResponse.Visits)
+func checkResponseCode(t *testing.T, expected, actual int) {
+	if expected != actual {
+		t.Errorf("Expected response code %d. Got %d\n", expected, actual)
 	}
 }
 
-func TestAddVisitHandler(t *testing.T) {
+func TestVisits(t *testing.T) {
+	request := httptest.NewRequest("GET", "/visits", nil)
+	response := executeRequest(request)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var statsObj SiteStatistics
+	json.Unmarshal(response.Body.Bytes(), &statsObj)
+
+	if statsObj.Visits < 0 {
+		t.Errorf("Expect the visits to be a number greater than zero, instead got %v", statsObj.Visits)
+	}
+}
+
+func TestAddVisit(t *testing.T) {
 	request := httptest.NewRequest("GET", "/addvisit", nil)
-	responseRecorder := httptest.NewRecorder()
-	statsHandler(responseRecorder, request)
+	response := executeRequest(request)
 
-	response := responseRecorder.Result()
-	defer response.Body.Close()
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		t.Error(err)
-	}
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var statsObj SiteStatistics
+	json.Unmarshal(response.Body.Bytes(), &statsObj) // how do we check for errors here?
 
 	// expect to get the updated count of visits in the response
-	var statsResponse StatsResponse
-	json.Unmarshal(data, &statsResponse) // how do we check for errors here?
-
-	if statsResponse.Visits < 0 {
-		t.Errorf("Expect the visits to be a number greater than zero, instead got %v", statsResponse.Visits)
+	if statsObj.Visits < 0 {
+		t.Errorf("Expect the visits to be a number greater than zero, instead got %v", statsObj.Visits)
 	}
 }
 
