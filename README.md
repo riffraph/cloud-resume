@@ -23,7 +23,11 @@ To run locally, it is using nginx as defined in the docker-compose.yml.
 
 RESTful APIs built using Go. Intended to deployed as containers.
 
-To run this layer locally, the Go app needs to be containerized and then run as defined in the docker-compose.yml.
+To run this layer locally, `go build -o api *.go` then `./api`.
+
+TODO: the Go app needs to be containerized and then run as defined in the docker-compose.yml.
+
+To run the tests for the API use `go test -v`
 
 
 ### DB layer

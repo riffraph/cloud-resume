@@ -7,8 +7,7 @@ import (
 )
 
 type App struct {
-	Router *http.ServeMux
-
+	Router         *http.ServeMux
 	siteStatistics *SiteStatistics
 }
 
@@ -41,15 +40,22 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
+func enableCORS(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+}
+
 //
 // ROUTE HANDLERS
 //
 
 func (a *App) getSiteStatistics(w http.ResponseWriter, r *http.Request) {
+	enableCORS(&w)
 	respondWithJSON(w, http.StatusOK, a.siteStatistics)
 }
 
 func (a *App) addVisit(w http.ResponseWriter, r *http.Request) {
+	enableCORS(&w)
+
 	err := a.siteStatistics.addVisit()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
