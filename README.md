@@ -1,6 +1,6 @@
 # Cloud Resume Challenge
 
-Purpose to build a website to host my resume.
+Purpose is to build a website to host my resume.
 
 
 ## Architecture
@@ -35,12 +35,8 @@ To run the tests for the API use `go test -v`
 Using Firebase on GCP, since the solution is intended to be ran on GCP.
 
 
-
 # Web server
 
 Using NGINX in a docker container.
 
-
-to run environment
-
-`docker-compose up --detach`
+to run environment locally: `docker-compose up --detach`
